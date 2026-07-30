@@ -162,6 +162,11 @@ function debounce(fn, ms) {
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
+  // AutoBoss button
+  document.getElementById('openAutoBoss').addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('autoboss.html') });
+  });
+
   chrome.runtime.sendMessage({ type: 'GET_MODULES_STATE' }, (response) => {
     if (!response?.success) return;
     renderModules(response.modules);

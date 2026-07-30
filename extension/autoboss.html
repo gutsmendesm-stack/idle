@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoBoss - BaiakBot</title>
+  <link rel="stylesheet" href="autoboss.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="brand">BaiakBot</div>
+        <h1>AutoBoss</h1>
+      </div>
+      <div class="controls">
+        <button class="btn btn-start" id="btnStart">Iniciar</button>
+        <button class="btn btn-stop" id="btnStop">Parar</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="catalog">Catalogo de Bosses</button>
+      <button class="tab-btn" data-tab="queue">Bosses Selecionados (<span id="queueCount">0</span>)</button>
+    </div>
+
+    <div class="catalog-panel active" id="catalogPanel">
+      <div class="boss-grid" id="bossGrid"></div>
+    </div>
+
+    <div class="queue-panel" id="queuePanel">
+      <div class="queue-list" id="queueList"></div>
+    </div>
+  </div>
+
+  <script src="modules/bosses_catalog.js"></script>
+  <script src="autoboss.js"></script>
+</body>
+</html>

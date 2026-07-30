@@ -184,3 +184,24 @@ textarea {
   text-align: center;
 }
 .version { font-size: 10px; color: #93a4b8; }
+
+
+.autoboss-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(212, 162, 76, 0.55);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1a2433 0%, #141c27 100%);
+  color: #d4a24c;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.autoboss-btn:hover {
+  background: rgba(212, 162, 76, 0.12);
+  border-color: #d4a24c;
+}
