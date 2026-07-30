@@ -195,6 +195,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.type === 'START_AUTOBOSS') {
+    (async () => {
+      const tabId = await getPlayTabId();
+      if (!tabId) { sendResponse({ success: false }); return; }
+      const queue = message.queue || [];
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        world: 'MAIN',
+        func: (q) => {
+          window.__baiakIdleAutoBossQueue = q;
+          window.__baiakIdleAutoBossRunIndex = 0;
+          if (window.__baiakBotAutoBoss) {
+            window.__baiakBotAutoBoss.start(q);
+            console.log('[BaiakBot] AutoBoss iniciado com ' + q.length + ' bosses!');
+          }
+        },
+        args: [queue]
+      });
+      await chrome.storage.local.set({ baiakBotAutoBossEnabled: true });
+      sendResponse({ success: true });
+    })();
+    return true;
+  }
+
+  if (message.type === 'STOP_AUTOBOSS') {
+    (async () => {
+      const tabId = await getPlayTabId();
+      if (!tabId) { sendResponse({ success: false }); return; }
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        world: 'MAIN',
+        func: () => {
+          if (window.__baiakBotAutoBoss && window.__baiakBotAutoBoss.stop) {
+            window.__baiakBotAutoBoss.stop();
+            console.log('[BaiakBot] AutoBoss parado!');
+          }
+        }
+      });
+      await chrome.storage.local.set({ baiakBotAutoBossEnabled: false });
+      sendResponse({ success: true });
+    })();
+    return true;
+  }
+
   if (message.type === 'GET_ACTIVE_MODULES') {
     chrome.storage.local.get(null, (data) => {
       const active = [];
