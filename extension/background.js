@@ -134,6 +134,33 @@ async function assertPlayTab(tabId) {
   return tab;
 }
 
+async function injectGoToHunt(tabId, huntName) {
+  await assertPlayTab(tabId);
+  const name = String(huntName || '').trim();
+  if (!name) throw new Error('Nenhuma hunt ativa selecionada.');
+
+  // Inject teleporte module and go to hunt
+  const moduleCode = await fetchModuleCode('seletores');
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    world: 'MAIN',
+    func: (code, hunt) => {
+      try { (0, eval)(code); } catch(_) {}
+      window.__baiakIdleSelectedHunt = { name: hunt };
+      setTimeout(() => {
+        const Teleporte = window.BaiakIdleTeleporte;
+        if (Teleporte && Teleporte.goToHunt) {
+          Teleporte.goToHunt(hunt);
+        } else {
+          console.error('[BaiakBot] BaiakIdleTeleporte.goToHunt indisponivel');
+        }
+      }, 500);
+    },
+    args: [moduleCode, name]
+  });
+  return { success: true, hunt: name };
+}
+
 const MODULES = {
   pular_boss: {
     botId: 'baiak_idle',
