@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaiakBot</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <div class="header">
+      <div class="brand">BaiakBot</div>
+      <h1 class="title">Baiak-Idle</h1>
+    </div>
+
+    <button class="autoboss-btn" id="openAutoBoss">AutoBoss</button>
+
+    <div class="status-pill" id="statusPill">Carregando...</div>
+
+    <div class="modules" id="modulesList"></div>
+
+    <div class="config-section" id="configSection">
+      <!-- Auto Sell Config -->
+      <div class="config-box" id="autoSellConfig" style="display:none;">
+        <div class="config-title">Auto Sell</div>
+        <div class="config-row">
+          <label for="sellMinPct">Vender ao atingir</label>
+          <div class="input-wrap">
+            <input type="number" id="sellMinPct" min="1" max="100" value="70">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mover Itens Config -->
+      <div class="config-box" id="moverConfig" style="display:none;">
+        <div class="config-title">Mover Itens (Tiers)</div>
+        <div class="tier-chips" id="tierChips">
+          <button class="tier-chip" data-tier="0" data-color="#cfd2d8">T0</button>
+          <button class="tier-chip" data-tier="1" data-color="#57b85a">T1</button>
+          <button class="tier-chip active" data-tier="2" data-color="#4a90e8">T2</button>
+          <button class="tier-chip active" data-tier="3" data-color="#a05be0">T3</button>
+          <button class="tier-chip active" data-tier="4" data-color="#e0b35a">T4</button>
+          <button class="tier-chip active" data-tier="5" data-color="#e53935">T5</button>
+        </div>
+      </div>
+
+      <!-- Stamina Config -->
+      <div class="config-box" id="staminaConfig" style="display:none;">
+        <div class="config-title">Stamina</div>
+        <div class="config-row">
+          <label for="staminaMin">Min (treino)</label>
+          <div class="input-wrap">
+            <input type="number" id="staminaMin" min="0" max="99" value="15">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <label for="staminaMax">Max (hunt)</label>
+          <div class="input-wrap">
+            <input type="number" id="staminaMax" min="1" max="100" value="30">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto Anuncio Config -->
+      <div class="config-box" id="anuncioConfig" style="display:none;">
+        <div class="config-title">Auto Anuncio</div>
+        <div class="config-row">
+          <label for="anuncioChannel">Canal</label>
+          <select id="anuncioChannel">
+            <option value="geral">Geral</option>
+            <option value="comunicados">Comunicados</option>
+            <option value="help">Help</option>
+            <option value="market">Market</option>
+          </select>
+        </div>
+        <div class="config-row">
+          <label for="anuncioInterval">Intervalo</label>
+          <div class="input-wrap">
+            <input type="number" id="anuncioInterval" min="1" max="120" value="5">
+            <span class="suffix">min</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <label for="anuncioText">Mensagem</label>
+          <textarea id="anuncioText" maxlength="200" rows="2" placeholder="Texto do anuncio"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="version">v1.0.0</span>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
