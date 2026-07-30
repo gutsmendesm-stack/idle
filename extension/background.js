@@ -696,6 +696,62 @@ async function fetchBossesModuleCode({ force = false } = {}) {
  * e copia só os dados serializáveis para o painel.
  */
 async function ensureBossesCatalog(tabId, { force = false } = {}) {
+  // PATCHED: Inject bosses catalog directly from local file
+  await assertExtensionUpToDate();
+  await assertPlayTab(tabId);
+
+  if (!force) {
+    try {
+      const [probe] = await chrome.scripting.executeScript({
+        target: { tabId },
+        world: 'MAIN',
+        func: () => Array.isArray(window.BAIAK_IDLE_BOSSES) ? window.BAIAK_IDLE_BOSSES.length : 0
+      });
+      if (Number(probe?.result) > 0) {
+        return { success: true, cached: true, count: probe.result };
+      }
+    } catch(_) {}
+  }
+
+  // Inject the bosses catalog file directly (bypasses CSP)
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    world: 'MAIN',
+    files: ['modules/bosses.js']
+  });
+
+  // Read back the count
+  const [result] = await chrome.scripting.executeScript({
+    target: { tabId },
+    world: 'MAIN',
+    func: () => {
+      const catalog = Array.isArray(window.BAIAK_IDLE_BOSSES) ? window.BAIAK_IDLE_BOSSES : [];
+      return catalog.map(b => ({ id: b.id, name: b.name, rarity: b.rarity, rarityLabel: b.rarityLabel, hp: b.hp, sprite: b.sprite }));
+    }
+  });
+
+  const bosses = Array.isArray(result?.result) ? result.result : [];
+  if (!bosses.length) {
+    throw new Error('Catalogo de bosses vazio ou invalido.');
+  }
+
+  // Also make available in ISOLATED world for game-panel
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    world: 'ISOLATED',
+    func: (catalog) => {
+      window.BAIAK_IDLE_BOSSES = catalog;
+      window.BAIAK_IDLE_GET_BOSS = function(idOrName) {
+        const key = String(idOrName || '').trim().toLowerCase();
+        if (!key) return null;
+        return catalog.find(b => b.id === key) || catalog.find(b => (b.name||'').toLowerCase() === key) || null;
+      };
+    },
+    args: [bosses]
+  });
+
+  return { success: true, count: bosses.length };
+} = {}) {
   await assertExtensionUpToDate();
   await assertPlayTab(tabId);
 
