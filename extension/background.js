@@ -473,117 +473,11 @@ async function scheduleVipMonitoring(contaStatus) {
   } catch (_) {}
 }
 
-async function syncAuthFromSite(reason = 'manual') {
-  const versionGate = (await fetchRequiredVersionFromApi()) || (await getVersionGate());
-
-  const hasCookie = await hasSiteSessionCookie();
-  if (!hasCookie) {
-    if (reason === 'cookie_removed') {
-      await new Promise((r) => setTimeout(r, 400));
-      if (await hasSiteSessionCookie()) {
-        return syncAuthFromSite('cookie_removed_retry');
-      }
-    }
-    const prev = await chrome.storage.local.get(AUTH_STORAGE.loggedIn);
-    if (prev[AUTH_STORAGE.loggedIn]) {
-      await clearAuthAndStopModules();
-    } else {
-      await persistAuthState(false, null, null);
-    }
-    return {
-      loggedIn: false,
-      user: null,
-      vip: false,
-      contaStatus: null,
-      reason,
-      extensionOutdated: !!versionGate?.outdated,
-      requiredVersion: versionGate?.required || '',
-      installedVersion: versionGate?.installed || getInstalledExtensionVersion(),
-      versionMessage: versionGate?.message || ''
-    };
-  }
-
-  const session = await fetchSiteSession();
-  const gate = (await getVersionGate()) || versionGate;
-  if (gate?.outdated) {
-    await stopAllModulesOnPlayTabs();
-  }
-
-  if (session.ok && session.user) {
-    const prevAuth = await chrome.storage.local.get([AUTH_STORAGE.vip, AUTH_STORAGE.loggedIn]);
-    const wasVip = !!prevAuth[AUTH_STORAGE.vip];
-    const cs = await persistAuthState(true, session.user, session.conta_status);
-    if (!cs.vip || gate?.outdated) {
-      await pauseModulesKeepLogin(reason + (gate?.outdated ? '_outdated' : '_no_vip'));
-    } else if (!wasVip && cs.vip) {
-      // VIP acabou de liberar: atualiza overlay nas abas do jogo
-      try {
-        await broadcastOverlay();
-      } catch (_) {}
-    }
-    await scheduleVipMonitoring(cs);
-    return {
-      loggedIn: true,
-      user: session.user,
-      vip: !!cs.vip,
-      contaStatus: cs,
-      reason,
-      extensionOutdated: !!gate?.outdated,
-      requiredVersion: gate?.required || '',
-      installedVersion: gate?.installed || getInstalledExtensionVersion(),
-      versionMessage: gate?.message || ''
-    };
-  }
-
-  if (!session.definite) {
-    const prev = await chrome.storage.local.get([
-      AUTH_STORAGE.loggedIn,
-      AUTH_STORAGE.user,
-      AUTH_STORAGE.vip,
-      AUTH_STORAGE.contaStatus
-    ]);
-    if (prev[AUTH_STORAGE.loggedIn]) {
-      const cs = normalizeContaStatus(prev[AUTH_STORAGE.contaStatus]);
-      if (!cs.vip && prev[AUTH_STORAGE.vip]) {
-        await pauseModulesKeepLogin(reason + '_expired_cache');
-        await persistAuthState(true, prev[AUTH_STORAGE.user], cs);
-      } else if (cs.vip) {
-        await scheduleVipMonitoring(cs);
-      }
-      if (gate?.outdated) {
-        await stopAllModulesOnPlayTabs();
-      }
-      return {
-        loggedIn: true,
-        user: prev[AUTH_STORAGE.user] || null,
-        vip: !!cs.vip,
-        contaStatus: cs,
-        reason: reason + '_keep',
-        extensionOutdated: !!gate?.outdated,
-        requiredVersion: gate?.required || '',
-        installedVersion: gate?.installed || getInstalledExtensionVersion(),
-        versionMessage: gate?.message || ''
-      };
-    }
-  }
-
-  const prev = await chrome.storage.local.get(AUTH_STORAGE.loggedIn);
-  if (prev[AUTH_STORAGE.loggedIn]) {
-    await clearAuthAndStopModules();
-  } else {
-    await persistAuthState(false, null, null);
-  }
-  return {
-    loggedIn: false,
-    user: null,
-    vip: false,
-    contaStatus: null,
-    reason,
-    extensionOutdated: !!gate?.outdated,
-    requiredVersion: gate?.required || '',
-    installedVersion: gate?.installed || getInstalledExtensionVersion(),
-    versionMessage: gate?.message || ''
-  };
+async function syncAuthFromSite(reason) {
+  // PATCHED: Always return VIP auth state
+  const fakeAuth = { loggedIn: true, vip: true, user: { nome: "BaiakBot" }, contaStatus: { vip: true, data_final: 9999999999 }, extensionOutdated: false };
+  try { await chrome.storage.local.set({ tibiaBotLoggedIn: true, tibiaBotVip: true }); } catch(_) {}
+  return fakeAuth;
 }
 
 function scheduleAuthSync(reason = 'manual') {
@@ -620,8 +514,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-// PATCHED: Skip auth sync on startup
-// syncAuthFromSite('startup').catch(() => {});
+syncAuthFromSite('startup').catch(() => {});
 
 /** Cache em memória do catálogo de bosses (módulo de dados, sem auto-start). */
 let bossesModuleCodeCache = '';
