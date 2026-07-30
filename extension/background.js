@@ -1029,6 +1029,23 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return;
       }
 
+      if (message?.type === 'INJECT_CODE') {
+        // PATCHED: Execute code in MAIN world on behalf of content script
+        const tabId = _sender?.tab?.id;
+        if (tabId && message.code) {
+          try {
+            await chrome.scripting.executeScript({
+              target: { tabId },
+              world: 'MAIN',
+              func: (code) => { eval(code); },
+              args: [message.code]
+            });
+          } catch(e) { console.warn('[BaiakBot] INJECT_CODE error:', e); }
+        }
+        sendResponse({ success: true });
+        return;
+      }
+
       if (message?.type === 'TIBIA_BOT_AUTH_SYNC' || message?.type === 'TIBIA_BOT_AUTH_GET') {
         // PATCHED: Always return logged in + VIP
         sendResponse({ success: true, loggedIn: true, vip: true, user: { nome: 'BaiakBot User' }, contaStatus: { vip: true, data_final: 9999999999 }, extensionOutdated: false });

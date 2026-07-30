@@ -325,25 +325,11 @@
 
   function pushToPage(assignmentJs) {
     try {
-      // MV3/CSP: inline script.textContent é bloqueado — usa blob URL.
-      const blob = new Blob([String(assignmentJs || '')], { type: 'text/javascript' });
-      const url = URL.createObjectURL(blob);
-      const script = document.createElement('script');
-      script.src = url;
-      script.onload = () => {
-        try {
-          URL.revokeObjectURL(url);
-        } catch (_) {}
-        try {
-          script.remove();
-        } catch (_) {}
-      };
-      script.onerror = () => {
-        try {
-          URL.revokeObjectURL(url);
-        } catch (_) {}
-      };
-      (document.documentElement || document.head).appendChild(script);
+      // PATCHED: Use chrome.runtime.sendMessage to ask background to inject via chrome.scripting
+      chrome.runtime.sendMessage({
+        type: 'INJECT_CODE',
+        code: String(assignmentJs || '')
+      });
     } catch (_) {}
   }
 
