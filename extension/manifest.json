@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Baiak Bot",
+  "version": "1.0.0",
+  "description": "Automacao para Baiak-Idle: Auto Sell, Pular Boss, Retornar Hunt, Mover Itens, Stamina, XP/h, Gold/h, Auto Anuncio.",
+  "permissions": ["storage", "scripting", "activeTab", "tabs"],
+  "host_permissions": [
+    "https://baiakidle.com/jogar",
+    "https://baiakidle.com/jogar/*",
+    "https://www.baiakidle.com/jogar",
+    "https://www.baiakidle.com/jogar/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Baiak Bot",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://baiakidle.com/jogar",
+        "https://baiakidle.com/jogar/*",
+        "https://www.baiakidle.com/jogar",
+        "https://www.baiakidle.com/jogar/*"
+      ],
+      "js": ["content.js", "overlay.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["modules/*.js"],
+      "matches": [
+        "https://baiakidle.com/*",
+        "https://www.baiakidle.com/*"
+      ]
+    }
+  ]
+}
