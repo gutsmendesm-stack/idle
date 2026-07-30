@@ -707,37 +707,32 @@ async function injectModule(tabId, moduleName, { autoStart = true } = {}) {
       window.__baiakIdleAutoBossRunIndex = Number(autoBossIndexArg) || 0;
       window[autoStartFlag] = !!shouldAutoStart;
 
-      const blob = new Blob([code], { type: 'application/javascript' });
-      const url = URL.createObjectURL(blob);
-      const script = document.createElement('script');
-      script.src = url;
-      script.onload = () => {
-        URL.revokeObjectURL(url);
-        try {
-          if (shouldAutoStart) {
-            if (!window[className]) {
-              console.error(`[Tibia Bot] Classe ${className} não encontrada após injetar ${label}`);
-              return;
-            }
-            if (!window[instanceKey]) {
-              window[instanceKey] = new window[className]();
-            }
-            const started = window[instanceKey]?.start?.(
-              Array.isArray(autoBossQueueArg) ? autoBossQueueArg : undefined
-            );
-            if (instanceKey === '__baiakIdleAutoBoss' && started === false) {
-              console.error('[Tibia Bot] AutoBoss não iniciou (fila vazia ou erro).');
-            }
+      // PATCHED: Use eval instead of blob (CSP blocks blob URLs)
+      try {
+        (0, eval)(code);
+      } catch(evalErr) {
+        console.error('[BaiakBot] Erro ao avaliar módulo ' + label + ':', evalErr);
+      }
+      try {
+        if (shouldAutoStart) {
+          if (!window[className]) {
+            console.error('[BaiakBot] Classe ' + className + ' não encontrada após injetar ' + label);
+            return;
           }
-        } catch (err) {
-          console.error(`[Tibia Bot] Erro ao iniciar ${label}`, err);
+          if (!window[instanceKey]) {
+            window[instanceKey] = new window[className]();
+          }
+          const started = window[instanceKey]?.start?.(
+            Array.isArray(autoBossQueueArg) ? autoBossQueueArg : undefined
+          );
+          if (instanceKey === '__baiakIdleAutoBoss' && started === false) {
+            console.error('[BaiakBot] AutoBoss não iniciou (fila vazia ou erro).');
+          }
+          console.log('[BaiakBot] Módulo iniciado: ' + label);
         }
-      };
-      script.onerror = (error) => {
-        URL.revokeObjectURL(url);
-        console.error(`[Tibia Bot] Erro ao injetar ${label}`, error);
-      };
-      (document.head || document.documentElement).appendChild(script);
+      } catch (err) {
+        console.error('[BaiakBot] Erro ao iniciar ' + label, err);
+      }
     },
     args: [
       moduleCode,
