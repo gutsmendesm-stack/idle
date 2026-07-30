@@ -30,7 +30,7 @@
         "https://www.baiakidle.com/jogar",
         "https://www.baiakidle.com/jogar/*"
       ],
-      "js": ["hunts-data.js", "content.js", "overlay.js", "game-sidebar.js"],
+      "js": ["hunts-data.js", "content.js", "overlay.js", "game-sidebar.js", "game-panel.js"],
       "run_at": "document_idle",
       "all_frames": false
     }

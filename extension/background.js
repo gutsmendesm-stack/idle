@@ -981,15 +981,6 @@ async function maybeReinjectOnTab(tabId, url) {
   const auth = await requireAuth();
   if (!auth.loggedIn || !auth.vip) return;
 
-  // PATCHED: Inject game-panel.js into MAIN world (CSP bypass)
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      world: 'MAIN',
-      files: ['game-panel.js']
-    });
-  } catch(e) { console.warn('[BaiakBot] game-panel inject error:', e); }
-
   const enabledModules = await getEnabledModuleNames();
   for (const moduleName of enabledModules) {
     const meta = MODULES[moduleName];
