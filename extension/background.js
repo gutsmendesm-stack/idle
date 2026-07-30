@@ -133,17 +133,6 @@ async function assertPlayTab(tabId) {
   }
   return tab;
 }
-  if (!url || typeof url !== 'string') return false;
-  try {
-    const u = new URL(url);
-    const host = String(u.hostname || '').toLowerCase();
-    if (host !== 'baiakidle.com' && host !== 'www.baiakidle.com') return false;
-    const path = String(u.pathname || '');
-    return path === '/jogar' || path === '/jogar/' || path.startsWith('/jogar/');
-  } catch (_) {
-    return false;
-  }
-}
 
 const MODULES = {
   pular_boss: {
