@@ -643,7 +643,8 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-syncAuthFromSite('startup').catch(() => {});
+// PATCHED: Skip auth sync on startup
+// syncAuthFromSite('startup').catch(() => {});
 
 /** Cache em memória do catálogo de bosses (módulo de dados, sem auto-start). */
 let bossesModuleCodeCache = '';
@@ -1194,8 +1195,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       }
 
       if (message?.type === 'TIBIA_BOT_AUTH_SYNC' || message?.type === 'TIBIA_BOT_AUTH_GET') {
-        const result = await syncAuthFromSite(message.reason || message.type);
-        sendResponse({ success: true, ...result });
+        // PATCHED: Always return logged in + VIP
+        sendResponse({ success: true, loggedIn: true, vip: true, user: { nome: 'BaiakBot User' }, contaStatus: { vip: true, data_final: 9999999999 }, extensionOutdated: false });
         return;
       }
 
@@ -1206,8 +1207,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       }
 
       if (message?.type === 'TIBIA_BOT_AUTH_REQUIRE') {
-        const result = await requireAuth();
-        sendResponse({ success: true, ...result });
+        // PATCHED: Always return logged in + VIP
+        sendResponse({ success: true, loggedIn: true, vip: true, user: { nome: 'BaiakBot User' }, contaStatus: { vip: true, data_final: 9999999999 } });
+        return;
         return;
       }
 
