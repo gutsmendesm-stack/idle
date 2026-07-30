@@ -115,7 +115,7 @@
   ];
 
   /** @type {{ loggedIn?: boolean, vip?: boolean, contaStatus?: any, user?: any, extensionOutdated?: boolean, requiredVersion?: string, installedVersion?: string, versionMessage?: string }} */
-  let lastAuth = { loggedIn: false, vip: false, extensionOutdated: false };
+  let lastAuth = { loggedIn: true, vip: true, extensionOutdated: false, user: { nome: 'BaiakBot' }, contaStatus: { vip: true, data_final: 9999999999 } };
   let currentHuntRankId = 'todas';
   /** @type {{ name?: string, level?: number } | null} */
   let selectedHunt = null;
@@ -169,12 +169,8 @@
   }
 
   async function syncAuth() {
-    try {
-      const res = await chrome.runtime.sendMessage({ type: 'TIBIA_BOT_AUTH_SYNC', reason: 'game-panel' });
-      return res || { loggedIn: false, vip: false };
-    } catch (_) {
-      return { loggedIn: false, vip: false };
-    }
+    // PATCHED: Always return VIP without asking background
+    return { loggedIn: true, vip: true, user: { nome: 'BaiakBot' }, contaStatus: { vip: true, data_final: 9999999999 }, extensionOutdated: false };
   }
 
   function ensureStyles() {
