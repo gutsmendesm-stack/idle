@@ -599,31 +599,8 @@ function scheduleAuthSync(reason = 'manual') {
 }
 
 async function requireAuth() {
-  const data = await chrome.storage.local.get([
-    AUTH_STORAGE.loggedIn,
-    AUTH_STORAGE.checkedAt,
-    AUTH_STORAGE.user,
-    AUTH_STORAGE.vip,
-    AUTH_STORAGE.contaStatus
-  ]);
-  const age = Date.now() - (Number(data[AUTH_STORAGE.checkedAt]) || 0);
-  const cs = normalizeContaStatus(data[AUTH_STORAGE.contaStatus]);
-
-  if (data[AUTH_STORAGE.loggedIn] && data[AUTH_STORAGE.vip] && !cs.vip) {
-    return syncAuthFromSite('require_expired');
-  }
-
-  if (!data[AUTH_STORAGE.loggedIn] || age > 60_000) {
-    return syncAuthFromSite('require');
-  }
-
-  return {
-    loggedIn: true,
-    user: data[AUTH_STORAGE.user] || null,
-    vip: !!cs.vip,
-    contaStatus: cs,
-    reason: 'cache'
-  };
+  // PATCHED: Always return VIP auth
+  return { loggedIn: true, vip: true, user: { nome: "BaiakBot" }, contaStatus: { vip: true, data_final: 9999999999 } };
 }
 
 async function requireVipForModule(name) { return; }
@@ -1003,6 +980,15 @@ async function maybeReinjectOnTab(tabId, url) {
 
   const auth = await requireAuth();
   if (!auth.loggedIn || !auth.vip) return;
+
+  // PATCHED: Inject game-panel.js into MAIN world (CSP bypass)
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      world: 'MAIN',
+      files: ['game-panel.js']
+    });
+  } catch(e) { console.warn('[BaiakBot] game-panel inject error:', e); }
 
   const enabledModules = await getEnabledModuleNames();
   for (const moduleName of enabledModules) {
