@@ -119,6 +119,20 @@ const BOT_PRODUCT_ID = {
 };
 
 function isBaiakIdlePlayUrl(url) {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return (u.hostname === 'baiakidle.com' || u.hostname === 'www.baiakidle.com') && u.pathname.startsWith('/jogar');
+  } catch(_) { return false; }
+}
+
+async function assertPlayTab(tabId) {
+  const tab = await chrome.tabs.get(tabId);
+  if (!isBaiakIdlePlayUrl(tab?.url)) {
+    throw new Error('Abra a pagina do jogo: ' + PLAY_URL_HINT);
+  }
+  return tab;
+}
   if (!url || typeof url !== 'string') return false;
   try {
     const u = new URL(url);
