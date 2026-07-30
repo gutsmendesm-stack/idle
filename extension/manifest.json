@@ -3,7 +3,7 @@
   "name": "Baiak Bot",
   "version": "1.3.18",
   "description": "Automacao para Baiak-Idle: hunts, Pular Boss, Retornar Hunt, AutoBoss, Auto Sell, Auto Anuncio, Stamina, XP/h, Gold/h.",
-  "permissions": ["storage", "scripting", "activeTab", "tabs", "alarms"],
+  "permissions": ["storage", "scripting", "activeTab", "tabs", "alarms", "cookies"],
   "host_permissions": [
     "https://baiakidle.com/jogar",
     "https://baiakidle.com/jogar/*",
@@ -11,7 +11,8 @@
     "https://www.baiakidle.com/jogar/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "popup.html",
